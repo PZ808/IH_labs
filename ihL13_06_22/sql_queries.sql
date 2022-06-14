@@ -128,25 +128,19 @@ hs2.total_amount as total_outgoing, hs2.total_amount - hs1.total_amount as diff
 from hs1 JOIN hs2
 where hs1.transaction_type = 'incoming'
 and hs2.transaction_type = 'outgoing';
---
---
-
-
 /* Continuing with the previous example, 
 rank the top 10 account_ids based on their difference. */
---
--- unfinis
 with hs1 as (
 select account_id,  sum(amount) as total_amount  
 from trans 
-where trans.type="incoming"
+where trans.type='PRIJEM'
 group by account_id),
 hs2 as (
 select account_id,  sum(amount) as total_amount  
 from trans 
-where trans.type="outgoing"
+where trans.type='VYDAJ'
 group by  account_id)
-select hs2.account_id, (hs2.total_amount - hs1.total_amount) as diff
+select hs1.account_id, (hs1.total_amount - hs2.total_amount) as diff
 from hs1 join hs2 using (account_id)
 order by diff desc
 LIMIT 10;
@@ -157,10 +151,10 @@ group by  account_id, transaction_type),
 hs2 as (
 select account_id, `type`as transaction_type, round(sum(amount),0) as total_amount  from trans 
 group by  account_id, transaction_type)
-select  hs2.account_id as acct,  hs2.total_amount - hs1.total_amount as diff
+select  hs1.account_id as acct,  hs1.total_amount - hs2.total_amount as diff
 from hs1 JOIN hs2  using (account_id)
-where hs1.transaction_type = 'incoming'
-and hs2.transaction_type = 'outgoing'
+where hs1.transaction_type = 'PRIJEM'
+and hs2.transaction_type = 'VYDAJ'
 order by diff desc
 LIMIT 10;
 
